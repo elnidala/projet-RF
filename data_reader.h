@@ -6,6 +6,15 @@
 #include <string.h>
 #include <dirent.h>
 
+// Error codes
+#define SUCCESS 0
+#define ERR_DIR_OPEN_FAILED 1
+#define ERR_FILE_OPEN_FAILED 2
+#define ERR_MEMORY_ALLOCATION_FAILED 3
+#define ERR_INVALID_FILENAME -1
+#define ERR_UNKNOWN_FILE_TYPE 5
+#define ERR_FEATURES_VALUES 6
+
 // Structure representing the data of a shape.
 // It includes the class, sample number, an array of feature values, and the count of these features.
 typedef struct {
