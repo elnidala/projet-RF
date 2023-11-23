@@ -1,5 +1,4 @@
 #include "data_reader.h"
-#include <math.h> // Included for math functions like isnan() and isinf().
 
 // Reads and processes all files with a given extension in a specified directory.
 // Populates an array of ShapeData structures with their contents.
