@@ -1,23 +1,24 @@
 #ifndef DATA_SPLIT_H
 #define DATA_SPLIT_H
 
-#include "data_reader.h" // Include to use the ShapeData structure.
+#include "data_reader.h" // Include to access the ShapeData structure definition.
 
-// Structure for holding split data sets: training and test sets.
+// Struct to hold split data sets: training and test sets.
 typedef struct {
-    ShapeData *trainingSet; // Pointer to array of ShapeData for training.
+    ShapeData *trainingSet; // Array of ShapeData for training.
     int trainingSize;       // Number of elements in the training set.
-    ShapeData *testSet;     // Pointer to array of ShapeData for testing.
+    ShapeData *testSet;     // Array of ShapeData for testing.
     int testSize;           // Number of elements in the test set.
 } SplitData;
 
-// Splits the provided shape data into training and test sets.
+// Function to split shape data into training and test sets.
 // Parameters:
-//   shapes: Pointer to the array of ShapeData to be split.
-//   totalSize: Total number of elements in the shape data array.
-//   trainingFraction: Fraction of data to be used as the training set (0.0 to 1.0).
+//   shapes: Array of ShapeData to be split.
+//   totalSize: Total number of elements in shapes array.
+//   trainingFraction: Fraction of data for training set (0.0 to 1.0).
 // Returns:
-//   A SplitData structure containing the training and test sets.
+//   SplitData structure with training and test sets.
+//   In case of an error (e.g., memory allocation failure), returns a SplitData with NULL pointers.
 SplitData splitData(ShapeData *shapes, int totalSize, float trainingFraction);
 
 #endif // DATA_SPLIT_H

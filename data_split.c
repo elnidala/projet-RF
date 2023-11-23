@@ -2,42 +2,59 @@
 #include <stdlib.h>
 #include <time.h>
 
-// Internal helper function to shuffle an array of ShapeData.
+// Internal function to shuffle an array of ShapeData.
+// This function randomizes the order of elements in the array.
 // Parameters:
-//   shapes: Pointer to the array of ShapeData to be shuffled.
-//   size: Number of elements in the shapes array.
-void shuffleData(ShapeData *shapes, int size) {
+//   shapes: Array of ShapeData to shuffle.
+//   size: Number of elements in the array.
+static void shuffleData(ShapeData *shapes, int size) {
     for (int i = size - 1; i > 0; i--) {
-        int j = rand() % (i + 1); // Generate a random index.
+        int j = rand() % (i + 1);
         ShapeData temp = shapes[i];
-        shapes[i] = shapes[j];    // Swap elements at indices i and j.
+        shapes[i] = shapes[j];
         shapes[j] = temp;
     }
 }
 
-// Splits the data into training and test sets based on a specified fraction.
-// The function shuffles the data before splitting.
+// Function to split the data into training and test sets.
+// This function first shuffles the data to ensure a random distribution.
+// Parameters and return value are as described in the header file.
 SplitData splitData(ShapeData *shapes, int totalSize, float trainingFraction) {
-    srand(time(NULL)); // Seed the random number generator.
+    srand(time(NULL)); // Seed RNG for shuffling.
 
-    shuffleData(shapes, totalSize); // Shuffle the data to randomize the distribution.
+    shuffleData(shapes, totalSize);
 
-    SplitData split;
-    // Calculate sizes of training and test sets.
-    split.trainingSize = (int)(totalSize * trainingFraction);
-    split.testSize = totalSize - split.trainingSize;
+    SplitData split = {NULL, 0, NULL, 0};
 
-    // Allocate memory for the training and test sets.
-    split.trainingSet = (ShapeData *)malloc(split.trainingSize * sizeof(ShapeData));
-    split.testSet = (ShapeData *)malloc(split.testSize * sizeof(ShapeData));
+    int trainingSize = (int)(totalSize * trainingFraction);
+    int testSize = totalSize - trainingSize;
 
-    // Copy the shuffled data to the training and test sets.
-    for (int i = 0; i < split.trainingSize; i++) {
+    // Allocate memory for the training set.
+    split.trainingSet = (ShapeData *)malloc(trainingSize * sizeof(ShapeData));
+    if (split.trainingSet == NULL) {
+        perror("Memory allocation failed for trainingSet array");
+        return split; // Return with NULL pointers on allocation failure.
+    }
+
+    // Allocate memory for the test set.
+    split.testSet = (ShapeData *)malloc(testSize * sizeof(ShapeData));
+    if (split.testSet == NULL) {
+        free(split.trainingSet); // Free previously allocated memory.
+        split.trainingSet = NULL;
+        perror("Memory allocation failed tstSet array");
+        return split;
+    }
+
+    // Copy data to training and test sets.
+    for (int i = 0; i < trainingSize; i++) {
         split.trainingSet[i] = shapes[i];
     }
-    for (int i = 0; i < split.testSize; i++) {
-        split.testSet[i] = shapes[i + split.trainingSize];
+    for (int i = 0; i < testSize; i++) {
+        split.testSet[i] = shapes[i + trainingSize];
     }
 
-    return split; // Return the SplitData structure.
+    split.trainingSize = trainingSize;
+    split.testSize = testSize;
+
+    return split;
 }
