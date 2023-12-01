@@ -15,7 +15,9 @@
 #define ERR_UNKNOWN_FILE_TYPE 5
 #define ERR_FEATURES_VALUES 6
 
-// Structure representing the data of a shape.
+/** 
+ * Structure representing the data of a shape.
+ */
 typedef struct {
     int class;           // Class identifier of the shape.
     int sample;          // Sample number for the shape.

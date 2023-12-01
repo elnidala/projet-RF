@@ -1,13 +1,9 @@
 #include "data_split.h"
-#include <stdlib.h>
-#include <time.h>
 
 // Internal function to shuffle an array of ShapeData.
 // This function randomizes the order of elements in the array.
-// Parameters:
-//   shapes: Array of ShapeData to shuffle.
-//   size: Number of elements in the array.
 static void shuffleData(ShapeData *shapes, int size) {
+    srand(time(NULL)); // Initialize random number generator.
     for (int i = size - 1; i > 0; i--) {
         int j = rand() % (i + 1);
         ShapeData temp = shapes[i];
@@ -18,11 +14,8 @@ static void shuffleData(ShapeData *shapes, int size) {
 
 // Function to split the data into training and test sets.
 // This function first shuffles the data to ensure a random distribution.
-// Parameters and return value are as described in the header file.
 SplitData splitData(ShapeData *shapes, int totalSize, float trainingFraction) {
-    srand(time(NULL)); // Seed RNG for shuffling.
-
-    shuffleData(shapes, totalSize);
+    shuffleData(shapes, totalSize); // Ensure random distribution.
 
     SplitData split = {NULL, 0, NULL, 0};
 
@@ -42,7 +35,7 @@ SplitData splitData(ShapeData *shapes, int totalSize, float trainingFraction) {
         free(split.trainingSet); // Free previously allocated memory.
         split.trainingSet = NULL;
         perror("Memory allocation failed tstSet array");
-        return split;
+        return split; // Return with NULL pointers on allocation failure.
     }
 
     // Copy data to training and test sets.
