@@ -1,2 +1,5 @@
 .vscode/
 *.o
+main
+plots.py
+plot.sh
