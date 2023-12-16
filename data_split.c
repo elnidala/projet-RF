@@ -5,7 +5,7 @@ void shuffleData(ShapeData *shapes, int size) {
     // Initialize random number generator only once
     static int rand_initialized = 0;
     if (!rand_initialized) {
-        srand(time(NULL));
+        srand(1);
         rand_initialized = 1;
     }
 
@@ -22,26 +22,26 @@ void shuffleData(ShapeData *shapes, int size) {
 SplitData splitData(ShapeData *shapes, int totalSize, float trainingFraction) {
     // Validate input parameters
     if (!shapes || trainingFraction < 0.0 || trainingFraction > 1.0) {
-        return (SplitData){NULL, 0, NULL, 0, SPLIT_ERR_INVALID_INPUT};
+        return (SplitData){NULL, 0, NULL, 0};
     }
 
     // Shuffle data for random distribution
     shuffleData(shapes, totalSize);
 
-    SplitData split = {NULL, 0, NULL, 0, SPLIT_SUCCESS};
+    SplitData split = {NULL, 0, NULL, 0};
     int trainingSize = (int)(totalSize * trainingFraction);
     int testSize = totalSize - trainingSize;
 
     // Memory allocation for training and test sets
     split.trainingSet = (ShapeData *)malloc(trainingSize * sizeof(ShapeData));
     if (!split.trainingSet) {
-        return (SplitData){NULL, 0, NULL, 0, SPLIT_ERR_MEMORY_FAILURE};
+        return (SplitData){NULL, 0, NULL, 0};
     }
 
     split.testSet = (ShapeData *)malloc(testSize * sizeof(ShapeData));
     if (!split.testSet) {
         free(split.trainingSet);
-        return (SplitData){NULL, 0, NULL, 0, SPLIT_ERR_MEMORY_FAILURE};
+        return (SplitData){NULL, 0, NULL, 0};
     }
 
     // Distribute data into training and test sets
