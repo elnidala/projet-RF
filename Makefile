@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -O2
 LDFLAGS = -lpthread -lm
 
-OBJ = main.o data_reader.o normalization.o data_split.o standardization.o knn.o
+OBJ = main.o data_reader.o normalization.o data_split.o standardization.o knn.o kmeans.o confusion_matrix.o cross_validation.o
 
 all: main
 
@@ -26,6 +26,15 @@ standardization.o: standardization.c standardization.h
 
 knn.o: knn.c knn.h
 	$(CC) $(CFLAGS) -c knn.c
+
+kmeans.o: kmeans.c kmeans.h
+	$(CC) $(CFLAGS) -c kmeans.c
+
+confusion_matrix.o: confusion_matrix.c confusion_matrix.h
+	$(CC) $(CFLAGS) -c confusion_matrix.c
+
+cross_validation.o: cross_validation.c cross_validation.h
+	$(CC) $(CFLAGS) -c cross_validation.c
 
 clean:
 	rm -f *.o main
