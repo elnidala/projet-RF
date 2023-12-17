@@ -1,7 +1,4 @@
 #include "confusion_matrix.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
 
 ConfusionMatrix createConfusionMatrix(int classCount) {
     ConfusionMatrix cm;
@@ -67,8 +64,8 @@ void printStatistics(const ConfusionMatrix cm) {
 
         for (int j = 0; j < cm.classCount; j++) {
             if (i != j) {
-                FP += cm.matrix[j][i]; // Predicted as i, actual is j
-                FN += cm.matrix[i][j]; // Predicted as j, actual is i
+                FN += cm.matrix[j][i]; // Predicted as i, actual is j
+                FP += cm.matrix[i][j]; // Predicted as j, actual is i
             }
         }
         for (int x = 0; x < cm.classCount; x++) {
@@ -104,17 +101,13 @@ void printStatistics(const ConfusionMatrix cm) {
     double overallAccuracy = (totalTP + totalFP + totalFN + totalTN) != 0 ? (double)(totalTP + totalTN) / (totalTP + totalFP + totalFN + totalTN) : 0;
 
     printf("\nOverall Metrics:\n");
-    printf("Overall Precision = %.2f\n", overallPrecision);
+    printf("Overall Precision = %.2f%%\n", overallPrecision);
     printf("Overall Recall = %.2f\n", overallRecall);
     printf("Overall Specificity = %.2f\n", overallSpecificity);
     printf("Overall F1 Score = %.2f\n", overallF1Score);
     printf("Overall FPR = %.2f\n", overallFPR);
     printf("Overall Accuracy = %.2f%%\n", overallAccuracy * 100);
 }
-
-
-
-
 
 
 void printDetailedConfusionMatrix(const ConfusionMatrix cm) {
