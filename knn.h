@@ -18,8 +18,8 @@
  * Used in the k-NN algorithm for mapping distances to training sample labels.
  */
 typedef struct {
-    double distance; // Distance between test and training samples.
-    int label;       // Class label of the training sample.
+    double distance; /**< Distance between test and training samples. */
+    int label;       /**< Class label of the training sample. */
 } DistanceLabel;
 
 /** 
