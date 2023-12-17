@@ -5,7 +5,7 @@ void shuffleData(ShapeData *shapes, int size) {
     // Initialize random number generator only once
     static int rand_initialized = 0;
     if (!rand_initialized) {
-        srand(1);
+        srand(time(NULL));
         rand_initialized = 1;
     }
 

@@ -1,3 +1,8 @@
+/**
+ * @file data_split.h
+ * @brief Header file for functions related to splitting shape data into training and test sets.
+ */
+
 #ifndef DATA_SPLIT_H
 #define DATA_SPLIT_H
 
@@ -11,17 +16,19 @@
 #define SPLIT_ERR_MEMORY_FAILURE -2
 
 /**
- * Structure to hold split data sets: training and test sets.
+ * @struct ShapeData
+ * @brief Structure to hold split data sets: training and test sets.
  */
 typedef struct {
-    ShapeData *trainingSet; // Array of ShapeData for the training set
-    int trainingSize;       // Number of elements in the training set
-    ShapeData *testSet;     // Array of ShapeData for the test set
-    int testSize;           // Number of elements in the test set
+    ShapeData *trainingSet; /**< Array of ShapeData for the training set. */
+    int trainingSize;       /**< Number of elements in the training set. */
+    ShapeData *testSet;     /**< Array of ShapeData for the test set. */
+    int testSize;           /**< Number of elements in the test set. */
 } SplitData;
 
 /**
- * Splits shape data into training and test sets.
+ * @brief Splits shape data into training and test sets.
+ *
  * The function shuffles the data before splitting to ensure random distribution.
  *
  * @param shapes Pointer to the array of ShapeData to be split
@@ -32,7 +39,8 @@ typedef struct {
 SplitData splitData(ShapeData *shapes, int totalSize, float trainingFraction);
 
 /**
- * Shuffles an array of ShapeData.
+ * @brief Shuffles an array of ShapeData.
+ *
  * Algorithm for randomizing the order of elements.
  *
  * @param shapes Pointer to the array of ShapeData to shuffle
@@ -41,7 +49,7 @@ SplitData splitData(ShapeData *shapes, int totalSize, float trainingFraction);
 void shuffleData(ShapeData *shapes, int size);
 
 /**
- * Frees the dynamically allocated memory in a SplitData structure.
+ * @brief Frees the dynamically allocated memory in a SplitData structure.
  *
  * @param split Pointer to the SplitData structure to be freed
  */
