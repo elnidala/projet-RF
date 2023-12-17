@@ -1,3 +1,8 @@
+/**
+ * @file data_reader.h
+ * @brief Header file for reading and processing shape data from files.
+ */
+
 #ifndef DATA_READER_H
 #define DATA_READER_H
 
@@ -15,18 +20,23 @@
 #define ERR_UNKNOWN_FILE_TYPE 5
 #define ERR_FEATURES_VALUES 6
 
-/** 
- * Structure representing the data of a shape.
+/**
+ * @struct ShapeData
+ * @brief Structure representing the data of a shape.
  */
 typedef struct {
-    int class;           // Class identifier of the shape.
-    int sample;          // Sample number for the shape.
-    double *features;    // Array of feature values.
-    int featureCount;    // Number of elements in the features array.
+    int class;           /**< Class identifier of the shape. */
+    int sample;          /**< Sample number for the shape. */
+    double *features;    /**< Array of feature values. */
+    int featureCount;    /**< Number of elements in the features array. */
 } ShapeData;
 
 /**
- * Reads all files with a specified extension in a given directory.
+ * @brief Reads all files with a specified extension in a given directory.
+ *
+ * This function reads all files with the specified extension in a directory,
+ * extracts shape data from each file, and returns an array of ShapeData structures.
+ *
  * @param directory Path to the directory containing files.
  * @param extension File extension to filter the files to be read.
  * @param count Pointer to an integer to store the number of files read.
@@ -35,28 +45,41 @@ typedef struct {
 ShapeData* readAllFiles(const char *directory, const char *extension, int *count);
 
 /**
- * Reads and processes a single file to extract shape data.
+ * @brief Reads and processes a single file to extract shape data.
+ *
+ * This function reads a single file, extracts class, sample, and feature information,
+ * and returns a ShapeData structure representing the data from the file.
+ *
  * @param filename Path to the file to be read.
  * @return ShapeData structure containing data extracted from the file.
  */
 ShapeData readFile(const char *filename);
 
 /**
- * Frees the dynamically allocated memory for an array of ShapeData.
+ * @brief Frees the dynamically allocated memory for an array of ShapeData.
+ *
+ * This function frees the memory allocated for an array of ShapeData structures.
+ *
  * @param data Pointer to the array of ShapeData.
  * @param count Number of elements in the array.
  */
 void freeShapeData(ShapeData *data, int count);
 
 /**
- * Determines the expected number of features in a file based on its extension.
+ * @brief Determines the expected number of features in a file based on its extension.
+ *
+ * This function determines the expected number of features in a file based on its extension.
+ *
  * @param filename Path to the file.
  * @return Expected number of features for known file types, or ERR_UNKNOWN_FILE_TYPE for unknown types.
  */
 int getExpectedFeatureCount(const char *filename);
 
 /**
- * Parses the filename to extract class and sample information.
+ * @brief Parses the filename to extract class and sample information.
+ *
+ * This function parses the filename to extract class and sample information.
+ *
  * @param filename The filename to parse.
  * @param class Pointer to store the extracted class number.
  * @param sample Pointer to store the extracted sample number.
@@ -65,14 +88,20 @@ int getExpectedFeatureCount(const char *filename);
 int parseFilename(const char *filename, int *class, int *sample);
 
 /**
- * Allocates memory for storing feature values in ShapeData.
+ * @brief Allocates memory for storing feature values in ShapeData.
+ *
+ * This function allocates memory for storing feature values in a ShapeData structure.
+ *
  * @param data Pointer to the ShapeData structure where features should be stored.
  * @return SUCCESS if memory allocation is successful, ERR_MEMORY_ALLOCATION_FAILED otherwise.
  */
 int allocateFeatures(ShapeData *data);
 
 /**
- * Reads feature values from a file and stores them in an array.
+ * @brief Reads feature values from a file and stores them in an array.
+ *
+ * This function reads feature values from a file and stores them in an array.
+ *
  * @param file Pointer to the FILE object to read from.
  * @param features Pointer to the array where features should be stored.
  * @param featureCount The number of features to read.
