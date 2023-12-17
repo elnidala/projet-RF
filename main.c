@@ -6,21 +6,146 @@
 #include "kmeans.h"
 #include "confusion_matrix.h"
 #include "cross_validation.h"
+#include "kmeans_evaluation.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+
+/**
+ * @struct CommandLineOptions
+ * @brief Stores command line options.
+ */
 typedef struct {
-    char *directory;
-    char *extension;
-    float trainingFraction;
-    char *method;
-    int p;
-    int k;
-    char *preprocessing;
+    char *directory;            /**< Path to the directory containing data files. */
+    char *extension;            /**< extension File extension of data files. */
+    float trainingFraction;     /**< Fraction of data to be used for training. */
+    char *method;               /**< Machine learning method to use ('knn' or 'kmeans'). */
+    int p;                      /**< Distance metric parameter (used in k-NN and k-Means). */
+    int k;                      /**< Number of neighbors/clusters. */
+    char *preprocessing;        /**< Preprocessing method ('normalize' or 'standardize'). */
 } CommandLineOptions;
 
+// Function declarations
+void runKnn(const CommandLineOptions *options);
+void runKmeans(const CommandLineOptions *options);
+void parseOptions(int argc, char *argv[], CommandLineOptions *options);
+bool validateOptions(const CommandLineOptions *options);
+void runModel(const CommandLineOptions *options);
+void printUsage(const char *program_name);
+
+int main(int argc, char *argv[]) {
+    CommandLineOptions options = {0};
+
+    // Parse command line options
+    parseOptions(argc, argv, &options);
+
+    // Validate the parsed options
+    if (!validateOptions(&options)) {
+        printUsage(argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    // Run the specified model (kNN or kMeans)
+    runModel(&options);
+
+    return EXIT_SUCCESS;
+}
+
+
+/**
+ * @brief Parses command line options and populates a CommandLineOptions struct.
+ * @param argc Argument count.
+ * @param argv Argument vector.
+ * @param options Pointer to CommandLineOptions to be filled.
+ */
+void parseOptions(int argc, char *argv[], CommandLineOptions *options) {
+    int opt;
+    while ((opt = getopt(argc, argv, "d:e:f:m:p:k:l:")) != -1) {
+        switch (opt) {
+            case 'd':
+                options->directory = optarg;
+                break;
+            case 'e':
+                options->extension = optarg;
+                break;
+            case 'f':
+                options->trainingFraction = atof(optarg);
+                break;
+            case 'm':
+                options->method = optarg;
+                break;
+            case 'p':
+                options->p = atoi(optarg);
+                break;
+            case 'k':
+                options->k = atoi(optarg);
+                break;
+            case 'l':
+                if (optarg != NULL) {
+                    options->preprocessing = optarg;
+                } else {
+                    options->preprocessing = "";
+                }
+                break;
+            default:
+                printUsage(argv[0]);
+                exit(EXIT_FAILURE);
+        }
+    }
+}
+
+
+/**
+ * @brief Validates the parsed command line options.
+ * @param options Parsed command line options.
+ * @return bool True if options are valid, false otherwise.
+ */
+bool validateOptions(const CommandLineOptions *options) {
+    if (!options->directory || !options->extension || options->trainingFraction <= 0.0 ||
+        !options->method || options->p <= 0 || options->k <= 0 || !options->preprocessing) {
+        return false;
+    }
+    return true;
+}
+
+
+/**
+ * @brief Runs the specified machine learning model based on the options.
+ * @param options Parsed and validated command line options.
+ */
+void runModel(const CommandLineOptions *options) {
+    if (strcmp(options->method, "knn") == 0) {
+        runKnn(options);
+    } else if (strcmp(options->method, "kmeans") == 0) {
+        runKmeans(options);
+    } else {
+        fprintf(stderr, "Method not supported\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+
+/**
+ * @brief Prints the usage message for the program.
+ * @param program_name Name of the program.
+ */
+void printUsage(const char *program_name) {
+    fprintf(stderr, "Usage: %s -d <directory> -e <file_extension> -f <training_fraction> -m <method> -p <p-value> -k <k-value> -l <pre-processing>\n", program_name);
+}
+
+
+/**
+ * @brief Runs the k-NN algorithm based on the provided command line options.
+ * 
+ * This function reads data files, pre-processes the data based on the specified method,
+ * splits the data into training and test sets, computes distances for k-NN, applies k-NN classification,
+ * and then calculates and prints the confusion matrix.
+ *
+ * @param options The CommandLineOptions containing the settings for the run.
+ */
 void runKnn(const CommandLineOptions *options) {
     // Read all files
     int count;
@@ -66,15 +191,7 @@ void runKnn(const CommandLineOptions *options) {
         //printMatrix(cm);
     }
 
-    // Populate the confusion matrix with the k-NN results
-    //populateConfusionMatrix(&cm, split.testSet, split.testSize, predictedClasses);
-
-    // Print the detailed confusion matrix
     printDetailedConfusionMatrix(cm);
-
-    // Perform cross-validation
-    int kFolds = 5; // Example number of folds
-    crossValidation(shapes, count, kFolds, knnModelFunction);
 
     // Free the allocated resources
     for (int i = 0; i < split.testSize; i++) {
@@ -87,6 +204,8 @@ void runKnn(const CommandLineOptions *options) {
     free(split.trainingSet);
     free(split.testSet);
 }
+
+
 
 void knnModelFunction(SplitData split) {
     // Precompute distances for the current fold
@@ -117,9 +236,15 @@ void knnModelFunction(SplitData split) {
     free(distances);
 }
 
-
-
-
+/**
+ * @brief Runs the k-Means clustering algorithm based on the provided command line options.
+ * 
+ * This function reads data files, preprocesses the data, applies k-Means clustering,
+ * prints the clustering results, evaluates the clustering performance using different metrics,
+ * and frees allocated resources.
+ *
+ * @param options The CommandLineOptions containing the settings for the run.
+ */
 void runKmeans(const CommandLineOptions *options) {
     int count;
     ShapeData *shapes = readAllFiles(options->directory, options->extension, &count);
@@ -153,7 +278,22 @@ void runKmeans(const CommandLineOptions *options) {
         printf("\n");
     }
 
-    // Free resources...
+     // Calculate the global centroid for BCSS
+    ShapeData globalCentroid = calculateGlobalCentroid(shapes, count, shapes->featureCount);
+
+    // Evaluate the clustering
+    double silhouette = silhouetteScore(clusters, options->k, shapes->featureCount);
+    double wcss = withinClusterSumOfSquares(clusters, options->k, shapes->featureCount);
+    double bcss = betweenClusterSumOfSquares(clusters, options->k, shapes->featureCount, &globalCentroid, count);
+
+    printf("Silhouette Score: %f\n", silhouette);
+    printf("Within-Cluster Sum of Squares: %f\n", wcss);
+    printf("Between-Cluster Sum of Squares: %f\n", bcss);
+
+    // Free resources
+    free(globalCentroid.features);
+
+    // Free resources
     for (int i = 0; i < options->k; i++) {
         free(clusters[i].centroid->features);
         free(clusters[i].centroid);
@@ -161,64 +301,4 @@ void runKmeans(const CommandLineOptions *options) {
     }
     free(clusters);
     freeShapeData(shapes, count);
-}
-
-
-void print_usage(const char *program_name) {
-    fprintf(stderr, "Usage: %s -d <directory> -e <file_extension> -f <training_fraction> -m <method> -p <p-value> -k <k-value> -l <pre-processing>\n", program_name);
-}
-
-int main(int argc, char *argv[]) {
-    CommandLineOptions options = {0};
-    int opt;
-
-    while ((opt = getopt(argc, argv, "d:e:f:m:p:k:l:")) != -1) {
-        switch (opt) {
-            case 'd':
-                options.directory = optarg;
-                break;
-            case 'e':
-                options.extension = optarg;
-                break;
-            case 'f':
-                options.trainingFraction = atof(optarg);
-                break;
-            case 'm':
-                options.method = optarg;
-                break;
-            case 'p':
-                options.p = atoi(optarg);
-                break;
-            case 'k':
-                options.k = atoi(optarg);
-                break;
-            case 'l':
-                if (optarg != NULL) {
-                    options.preprocessing = optarg;
-                } else {
-                    // Handle the case where -l is provided without an argument
-                    options.preprocessing = ""; // or set a default value
-                }
-                break;
-            default:
-                print_usage(argv[0]);
-                return EXIT_FAILURE;
-        }
-    }
-
-    if (!options.directory || !options.extension || options.trainingFraction <= 0.0 || !options.method || options.p <= 0 || options.k <= 0 || !options.preprocessing) {
-        print_usage(argv[0]);
-        return EXIT_FAILURE;
-    }
-
-    if (strcmp(options.method, "knn") == 0) {
-        runKnn(&options);
-    } else if (strcmp(options.method, "kmeans") == 0) {
-        runKmeans(&options);
-    } else {
-        fprintf(stderr, "Method not supported\n");
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
 }
