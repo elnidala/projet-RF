@@ -1,3 +1,9 @@
+
+/**
+ * @file normalization.h
+ * @brief Header file for normalizing feature values in ShapeData.
+ */
+
 #ifndef NORMALIZATION_H
 #define NORMALIZATION_H
 
@@ -6,19 +12,23 @@
 
 // Structure to hold arguments for the thread function findMinMaxThread.
 typedef struct {
-    ShapeData *data;      // Pointer to the array of ShapeData.
-    int startIdx;         // Starting index of the data segment for this thread.
-    int endIdx;           // Ending index of the data segment.
-    double *min;          // Array to store minimum values found by this thread.
-    double *max;          // Array to store maximum values found by this thread.
-    int featureCount;     // Number of features in each ShapeData item.
+    ShapeData *data;      /**< Pointer to the array of ShapeData. */
+    int startIdx;         /**< Starting index of the data segment for this thread. */
+    int endIdx;           /**< Ending index of the data segment. */
+    double *min;          /**< Array to store minimum values found by this thread. */
+    double *max;          /**< Array to store maximum values found by this thread. */
+    int featureCount;     /**< Number of features in each ShapeData item. */
 } ThreadArgs;
 
-// Function to normalize the feature values in ShapeData.
-// Parameters:
-//   data: Pointer to the array of ShapeData.
-//   dataSize: Total number of ShapeData items.
-//   featureCount: Number of features in each ShapeData item.
+/**
+ * @brief Normalizes the feature values in an array of ShapeData.
+ *
+ * Normalization scales the data to a specific range, typically [0, 1].
+ *
+ * @param data Pointer to the array of ShapeData.
+ * @param dataSize Total number of ShapeData items.
+ * @param featureCount Number of features in each ShapeData item.
+ */
 void normalizeData(ShapeData *data, int dataSize, int featureCount);
 
 #endif // NORMALIZATION_H
