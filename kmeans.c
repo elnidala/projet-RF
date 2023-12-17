@@ -202,10 +202,48 @@ static bool areCentroidsConverged(Cluster *clusters, Cluster *prevClusters, int 
 }
 
 
-/**
- * Iteratively performs clustering by assigning points to the nearest centroid
- * and updating centroids until the maximum number of iterations is reached.
- */
+// Function to find the most frequent class in a cluster
+static int findMostFrequentClass(ShapeData *points, int size) {
+    if (size == 0) return -1;
+
+    int minClass = INT_MAX;
+    int maxClass = INT_MIN;
+
+    // Find the range of class labels
+    for (int i = 0; i < size; i++) {
+        if (points[i].class < minClass) minClass = points[i].class;
+        if (points[i].class > maxClass) maxClass = points[i].class;
+    }
+
+    int classRange = maxClass - minClass + 1;
+    int *classCount = (int*) calloc(classRange, sizeof(int));
+    if (!classCount) {
+        fprintf(stderr, "Memory allocation failed in findMostFrequentClass\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Count the frequency of each class
+    #pragma omp parallel for
+    for (int i = 0; i < size; i++) {
+        int classIndex = points[i].class - minClass;
+        #pragma omp atomic
+        classCount[classIndex]++;
+    }
+
+    int maxClassIndex = 0;
+    for (int i = 1; i < classRange; i++) {
+        if (classCount[i] > classCount[maxClassIndex]) {
+            maxClassIndex = i;
+        }
+    }
+
+    int mostFrequentClass = maxClassIndex + minClass;
+    free(classCount);
+    return mostFrequentClass;
+}
+
+
+
 /**
  * Iteratively performs clustering by assigning points to the nearest centroid
  * and updating centroids until the maximum number of iterations is reached.
@@ -275,6 +313,10 @@ Cluster* kmeans(ShapeData *trainingSet, int trainingSize, int k, int p, int feat
         }
     }
 
+    for (int i = 0; i < k; i++) {
+        clusters[i].clusterClass = findMostFrequentClass(clusters[i].points, clusters[i].size);
+    }
+
     // Free previous clusters
     for (int i = 0; i < k; i++) {
         if (prevClusters[i].centroid) {
@@ -284,6 +326,6 @@ Cluster* kmeans(ShapeData *trainingSet, int trainingSize, int k, int p, int feat
     }
     free(prevClusters);
 
-    // Return the result, but remember that the caller is responsible for freeing this memory
+    // Return the result, caller is responsible for freeing this memory
     return clusters;
 }

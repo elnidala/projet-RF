@@ -9,6 +9,8 @@
 
 #include <stdbool.h>
 #include <float.h>
+#include <omp.h>
+#include <limits.h>
 
 
 /**
