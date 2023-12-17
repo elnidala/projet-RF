@@ -1,40 +1,35 @@
 CC = gcc
-CFLAGS = -Wall -O2
-LDFLAGS = -lpthread -lm
+CFLAGS = -Wall -O2 -fopenmp
+LDFLAGS = -lpthread -lm -fopenmp
 
-OBJ = main.o data_reader.o normalization.o data_split.o standardization.o knn.o kmeans.o confusion_matrix.o cross_validation.o
+# List of source files
+SRCS = main.c data_reader.c normalization.c data_split.c standardization.c \
+       knn.c kmeans.c confusion_matrix.c cross_validation.c kmeans_evaluation.c
 
-all: main
+# Corresponding object files
+OBJS = $(SRCS:.c=.o)
 
-main: $(OBJ)
-	$(CC) -o main $(OBJ) $(LDFLAGS)
+# Target executable
+TARGET = main
 
-main.o: main.c
-	$(CC) $(CFLAGS) -c main.c
+# Default target
+all: $(TARGET)
 
-data_reader.o: data_reader.c data_reader.h
-	$(CC) $(CFLAGS) -c data_reader.c
+# Linking the executable
+$(TARGET): $(OBJS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
-normalization.o: normalization.c normalization.h
-	$(CC) $(CFLAGS) -c normalization.c
+# Compiling source files
+%.o: %.c
+	$(CC) $(CFLAGS) -c $<
 
-data_split.o: data_split.c data_split.h
-	$(CC) $(CFLAGS) -c data_split.c
-
-standardization.o: standardization.c standardization.h
-	$(CC) $(CFLAGS) -c standardization.c
-
-knn.o: knn.c knn.h
-	$(CC) $(CFLAGS) -c knn.c
-
-kmeans.o: kmeans.c kmeans.h
-	$(CC) $(CFLAGS) -c kmeans.c
-
-confusion_matrix.o: confusion_matrix.c confusion_matrix.h
-	$(CC) $(CFLAGS) -c confusion_matrix.c
-
-cross_validation.o: cross_validation.c cross_validation.h
-	$(CC) $(CFLAGS) -c cross_validation.c
-
+# Clean up
 clean:
-	rm -f *.o main
+	rm -f $(OBJS) $(TARGET)
+
+# Generate documentation
+doc:
+	doxygen Doxyfile
+
+# Phony targets for non-file commands
+.PHONY: all clean doc
